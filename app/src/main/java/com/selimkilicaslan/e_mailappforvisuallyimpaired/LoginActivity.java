@@ -34,10 +34,12 @@ public class LoginActivity extends MyAppCompatActivity {
     }
 
     @Override
-    public void onAsyncReturn(int response){
-        if(response == 1) {
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(intent);
+    public void onAsyncReturn(int functionCode, int response){
+        if(functionCode == 1){
+            if(response == 1) {
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+            }
         }
     }
 

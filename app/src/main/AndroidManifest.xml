@@ -11,8 +11,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SingleMailActivity"></activity>
-        <activity android:name=".MainActivity" />
+        <activity android:name=".ContactActivity"
+            android:screenOrientation="portrait" ></activity>
+        <activity android:name=".SendMailActivity"
+            android:screenOrientation="portrait"  />
+        <activity android:name=".SingleMailActivity"
+            android:screenOrientation="portrait"  />
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait"  />
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

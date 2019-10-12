@@ -7,23 +7,28 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.MenuInflater;
 import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.mail.Flags;
+import javax.mail.Flags.Flag;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
 import javax.mail.Store;
+import javax.mail.search.FlagTerm;
 
 public class MainActivity extends MyAppCompatActivity {
     String email, password;
     RecyclerView recyclerView;
-    ArrayList<MailItemParcelable> mailList;
     MailAdapter mailAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,51 +48,105 @@ public class MainActivity extends MyAppCompatActivity {
     }
 
     @Override
-    public void onAsyncReturn(int response){
-        if (response == 1){
-            try {
-                Store store = emailSession.getStore("pop3s");
-                store.connect();
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.topbar_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
-                Folder emailFolder = store.getFolder("INBOX");
-                emailFolder.open(Folder.READ_ONLY);
-                int messageCount = emailFolder.getMessageCount();
-                Message[] messages = emailFolder.getMessages(messageCount - 24, messageCount);
-                Log.i("Mail", "messages.length---" + messages.length);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
+        switch (item.getItemId()) {
+            case R.id.action_new_email:
+                intent = new Intent(getApplicationContext(), SendMailActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.action_add_contact:
+                intent = new Intent(getApplicationContext(), ContactActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.action_logout:
+                SharedPreferencesHandler.setCredentials(getApplicationContext(), "","");
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
-                for (int i = 0; i < messages.length; i++) {
-                    Message message = messages[i];
-                    Log.i("Mail", "---------------------------------");
-                    Log.i("Mail", "Email Number " + (i + 1));
-                    String subject = message.getSubject();
-                    Log.i("Mail", "Subject: " + subject);
-                    String sentDate = message.getSentDate().toString();
-                    Log.i("Mail", "Date: " + sentDate);
-                    String from = message.getFrom()[0].toString();
-                    Log.i("Mail", "From: " + from);
-                    MailItemParcelable newMail = new MailItemParcelable(subject, from, "", sentDate);
-                    logPart(message, newMail);
-                    mailList.add(newMail);
-                }
-                mailAdapter = new MailAdapter(getApplicationContext(), mailList);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        recyclerView.setAdapter(mailAdapter);
+    @Override
+    public void onAsyncReturn(int functionCode, int response){
+        if(functionCode == 1) {
+            if (response == 1) {
+                try {
+                    Store store = emailSession.getStore("pop3s");
+                    store.connect();
+                    Folder emailFolder = store.getFolder("INBOX");
+                    emailFolder.open(Folder.READ_ONLY);
+                    int messageCount = emailFolder.getMessageCount();
+                    Flags flags = new Flags();
+                    flags.add(Flag.RECENT);
+                    FlagTerm flagTerm = new FlagTerm(flags, true);
+                    //Message[] messages = emailFolder.search(flagTerm);
+                    Message[] messages;
+                    if(messageCount >= 25){
+                        messages = emailFolder.getMessages(messageCount - 24, messageCount);
                     }
-                });
-                emailFolder.close(false);
-                store.close();
-            } catch (NoSuchProviderException e) {
-                e.printStackTrace();
-            } catch (MessagingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                    else{
+                        messages = emailFolder.getMessages();
+                    }
+
+                    for (int i = 0; i < messages.length; i++) {
+                        Message message = messages[i];
+                        String subject = message.getSubject();
+                        String sentDate = message.getSentDate().toString();
+                        String from = message.getFrom()[0].toString();
+                        MailItemParcelable newMail = new MailItemParcelable(subject, from, "", sentDate);
+                        writePart(message, newMail);
+                        mailList.add(newMail);
+                    }
+                    mailAdapter = new MailAdapter(getApplicationContext(), mailList);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            recyclerView.setAdapter(mailAdapter);
+                        }
+                    });
+                    if(mailList.size() > 0){
+                        speak("You have "+ mailList.size() + " new messages");
+                    } else {
+                        speak("You don't have any new messages");
+                    }
+                    emailFolder.close(false);
+                    store.close();
+                } catch (NoSuchProviderException e) {
+                    e.printStackTrace();
+                } catch (MessagingException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        else if(functionCode == 2){
+            if(response == 1){
+                speak("Message sent successfully");
+            } else{
+                speak("Couldn't send message");
             }
         }
     }
 
+    @Override
+    public void onVoiceButtonClick(View view) {
+        super.onVoiceButtonClick(view);
+    }
+
+    @Override
+    public void onBackPressed(){
+
+    }
 
     public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MyViewHolder> {
 

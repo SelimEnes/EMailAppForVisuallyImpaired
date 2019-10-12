@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item android:id="@+id/action_new_email"
+        android:title="New E-Mail"
+        android:icon="@drawable/ic_send_black_24dp"/>
+
+    <item android:id="@+id/action_add_contact"
+        android:title="Create Contact"
+        android:icon="@drawable/ic_add_black"/>
+
+    <item android:id="@+id/action_logout"
+        android:title="Logout"
+        android:icon="@drawable/ic_eject_black"/>
+
+</menu>
