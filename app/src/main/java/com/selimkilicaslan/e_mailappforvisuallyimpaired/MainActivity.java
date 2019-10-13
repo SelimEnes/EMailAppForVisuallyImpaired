@@ -147,7 +147,6 @@ public class MainActivity extends MyAppCompatActivity {
 
     @Override
     public void onBackPressed(){
-        super.onBackPressed();
     }
 
     public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MyViewHolder> {
