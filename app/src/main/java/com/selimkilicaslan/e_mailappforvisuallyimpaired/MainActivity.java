@@ -15,6 +15,7 @@ import android.view.MenuInflater;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import javax.mail.Flags;
@@ -100,7 +101,8 @@ public class MainActivity extends MyAppCompatActivity {
                     for (int i = 0; i < messages.length; i++) {
                         Message message = messages[i];
                         String subject = message.getSubject();
-                        String sentDate = message.getSentDate().toString();
+                        SimpleDateFormat format=new SimpleDateFormat("dd MMM yyyy");
+                        String sentDate = format.format(message.getSentDate());
                         String from = message.getFrom()[0].toString();
                         MailItemParcelable newMail = new MailItemParcelable(subject, from, "", sentDate);
                         writePart(message, newMail);
@@ -145,7 +147,7 @@ public class MainActivity extends MyAppCompatActivity {
 
     @Override
     public void onBackPressed(){
-
+        super.onBackPressed();
     }
 
     public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MyViewHolder> {

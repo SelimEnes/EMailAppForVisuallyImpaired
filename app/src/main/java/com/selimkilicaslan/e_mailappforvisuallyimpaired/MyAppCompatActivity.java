@@ -96,6 +96,10 @@ public class MyAppCompatActivity extends AppCompatActivity {
                                 }
                                 break;
                         }
+
+                    }else{
+                        speechText.speak("there is not such a command, please try again");
+                        speechText.listen(LISTEN);
                     }
                     break;
 
